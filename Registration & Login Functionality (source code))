@@ -10,6 +10,7 @@ typedef struct usersInfo {
 USER registeredUser[max_users];
 int user_count=0;
 
+//UDF for Registration Functionality
 void registerUser() {
     FILE *file = fopen("User Information.txt", "w");
 
@@ -30,12 +31,7 @@ void registerUser() {
     fclose(file);
 }
 
-// int load_user_count(int USER_COUNT){
-// int usernumber=USER_COUNT;
-// return usernumber;
-// }
-
-
+//UDF for Log in Functionality
 void loginUser() {
 
     char username[50], password[50];
@@ -63,6 +59,7 @@ int main() {
     int choice;
 
     while (1) {
+        //Navigation Menu
         printf("\n| --- Menu --- |\n");
         printf("1. Register\n");
         printf("2. Login\n");
