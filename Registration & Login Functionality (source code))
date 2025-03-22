@@ -76,7 +76,7 @@ int main() {
                 break;
             case 3:
                 printf("Exiting the program. Goodbye!\n");
-                return 0; //change here... break to return
+                return 0;
             default:
                 printf("Invalid choice! Please try again.\n");
         }
