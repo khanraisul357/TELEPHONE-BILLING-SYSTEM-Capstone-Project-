@@ -23,9 +23,6 @@ void registerUser() {
     user_count++;
     printf("Registration Successful!\n");
 
-    printf("user count = %d",user_count);
-
-
     fprintf(file, "Username: %s\n", registeredUser[user_count].username);
     fprintf(file, "Password: %s\n", registeredUser[user_count].password);
     fclose(file);
