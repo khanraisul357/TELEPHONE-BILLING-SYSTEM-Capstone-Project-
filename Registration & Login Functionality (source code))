@@ -1,55 +1,137 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include<conio.h>
+
 
 typedef struct usersInfo {
-    char username[50];
-    char password[50];
+    char username[13];
+    char phone[13];
+    char email[30];
+    char password[20];
+    char address[50];
 }USER;
 
 # define max_users 100
 USER registeredUser[max_users];
 int user_count=0;
 
+//UDF for password masking
+void maskPassword(char *password) {
+    char ch;
+    int i = 0;
+    
+    printf("Enter password: ");
+    while ((ch = getch())!= '\r') { // Ensure '\r' (carriage return) is handled correctly.
+        if (ch == '\b' && i > 0) { // Backspace handling
+            printf("\b \b");
+            i--;
+        } else if (isprint(ch) && i < 19) { // Limit password length to 19
+            password[i++] = ch;
+            printf("*");
+        }
+    }
+    password[i] = '\0';
+    
+}
+
+//UDF for checking valid/Invalid password
+int isPasswordValid(char *password) {
+    int hasUpper = 0, hasLower = 0, hasDigit = 0, hasSpecial = 0;
+    for (int i = 0; password[i]; i++) {
+        if (isupper(password[i])) 
+            hasUpper = 1;
+        else if (islower(password[i])) 
+            hasLower = 1;
+        else if (isdigit(password[i])) 
+            hasDigit = 1;
+        else 
+            hasSpecial = 1;
+    }
+    return (hasUpper && hasLower && hasDigit && hasSpecial && strlen(password) >= 8);
+}
+
+//UDF for read file
+void ReadUserInfo(USER RegisteredUser[],int count){
+    FILE* file=fopen("User Information.bin","rb"); 
+    int i=0;
+    while(i<=count){
+        fread(&RegisteredUser[i],sizeof(USER),1,file);
+        i++;
+
+    }
+    fclose(file);
+}
+
 //UDF for Registration Functionality
 void registerUser() {
-    FILE *file = fopen("User Information.txt", "a");
 
     printf("\n| --- Register --- |\n");
     printf("Enter username: ");
     scanf("%s",&registeredUser[user_count].username);
-    printf("Enter password: ");
-    scanf("%s",&registeredUser[user_count].password);
-    
-    user_count++;
-    printf("Registration Successful!\n");
+    printf("Enter Email: ");
+    scanf("%s",&registeredUser[user_count].email);
+    printf("Enter Phone Number: ");
+    scanf("%s",&registeredUser[user_count].phone);
+    printf("Enter Address: ");
+    scanf("%s",&registeredUser[user_count].address);
 
-    fprintf(file, "Username: %s\n", registeredUser[user_count].username);
-    fprintf(file, "Password: %s\n", registeredUser[user_count].password);
+    
+    do{
+        maskPassword(registeredUser[user_count].password);
+        if(!isPasswordValid(registeredUser[user_count].password)){
+           printf("\n\nInvalid Password,try again!\n\nPassword must contain:\n1.Uppercase Letter\n2.Lowercase Letter\n3.Numbers\n4.Special Symbol(*,!,$,@)\n\n");
+        }
+        else{
+            printf("\nRegistration Successful!\n");
+        }
+
+    }while(!isPasswordValid(registeredUser[user_count].password));
+
+
+    FILE* file = fopen("User Information.bin", "ab");
+
+    fwrite(&registeredUser[user_count],sizeof(USER),1,file);
     fclose(file);
+
+    user_count++;
 }
 
 //UDF for Log in Functionality
 void loginUser() {
 
-    char username[50], password[50];
+    char username[50],email[50],password[50];
     printf("\n| --- Login --- |\n");
     printf("Enter username: ");
     scanf("%s",username);
+    printf("Enter Email: ");
+    scanf("%s",email);
     printf("Enter password: ");
     scanf("%s",password);
 
     int found=0;
     for(int i=0;i<user_count;i++){
-        if (strcmp(username, registeredUser[i].username) == 0 && strcmp(password, registeredUser[i].password) == 0) {
+        if (strcmp(username, registeredUser[i].username) == 0 && strcmp(email, registeredUser[i].email) == 0 && strcmp(password, registeredUser[i].password) == 0) {
             printf("Login successful. Welcome, %s!\n", username);
             found=1;
             break;
         }
-        if(found!=1) {
-            printf("Invalid username or password.\n");
-        }
-    }
+        
+        else if(found!=1) {
+            if(strcmp(username, registeredUser[i].username) != 0){
+              printf("Invalid Username.Try Again!\n\n");
+            }
+            else if(strcmp(email, registeredUser[i].email) == 0){
+              printf("Invalid Email.Try Again!\n\n");
+            }
+            else if(strcmp(password, registeredUser[i].password)){
+             printf("Invalid Password.Try Again!\n\n");
+            }
 
+        }
+
+    }
 }
 
 int main() {
