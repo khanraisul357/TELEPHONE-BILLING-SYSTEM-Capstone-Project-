@@ -165,7 +165,7 @@ int main() {
                     int second_choice;
                     printf("\n1.Call Log Details\n2.Generate Bill\n3.Repor\n4.Ledger\n5.Log Out\nSelect from Menu: ");
                     scanf("%d",&second_choice);
-                    // switch(second_choice){}
+                    
                 }
                 break;
             case 3:
