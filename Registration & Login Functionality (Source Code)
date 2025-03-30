@@ -11,6 +11,7 @@ typedef struct usersInfo {
     char email[30];
     char password[20];
     char address[50];
+    // float balance=0.0;
 }USER;
 
 # define max_users 100
@@ -69,37 +70,42 @@ void registerUser() {
 
     printf("\n| --- Register --- |\n");
     printf("Enter username: ");
-    scanf("%s",&registeredUser[user_count].username);
+    scanf("%s",registeredUser[user_count].username);
     printf("Enter Email: ");
-    scanf("%s",&registeredUser[user_count].email);
+    scanf("%s",registeredUser[user_count].email);
     printf("Enter Phone Number: ");
-    scanf("%s",&registeredUser[user_count].phone);
+    scanf("%s",registeredUser[user_count].phone);
     printf("Enter Address: ");
-    scanf("%s",&registeredUser[user_count].address);
+    scanf("%s",registeredUser[user_count].address);
 
     
     do{
         maskPassword(registeredUser[user_count].password);
         if(!isPasswordValid(registeredUser[user_count].password)){
-           printf("\n\nInvalid Password,try again!\n\nPassword must contain:\n1.Uppercase Letter\n2.Lowercase Letter\n3.Numbers\n4.Special Symbol(*,!,$,@)\n\n");
+           printf("\n\nInvalid Password,try again!\n\nPassword must contain:\n1.Uppercase Letter\n2.Lowercase Letter\n3.Numbers\n4.Special Symbol(*,!,$,@)\n5.Minimum 8 characters\n\n");
         }
         else{
-            printf("\nRegistration Successful!\n");
+            printf("\n\nRegistration Successful!\n");
         }
 
     }while(!isPasswordValid(registeredUser[user_count].password));
+    // printf("%d",user_count);
 
 
     FILE* file = fopen("User Information.bin", "ab");
-
+    if(user_count!=0){
+    fwrite("\n",sizeof(char),1,file);
+    }
     fwrite(&registeredUser[user_count],sizeof(USER),1,file);
+    
+    
     fclose(file);
 
     user_count++;
 }
 
 //UDF for Log in Functionality
-void loginUser() {
+int loginUser() {
 
     char username[50],email[50],password[50];
     printf("\n| --- Login --- |\n");
@@ -107,39 +113,42 @@ void loginUser() {
     scanf("%s",username);
     printf("Enter Email: ");
     scanf("%s",email);
-    printf("Enter password: ");
-    scanf("%s",password);
+    
+    maskPassword(password);
 
     int found=0;
     for(int i=0;i<user_count;i++){
         if (strcmp(username, registeredUser[i].username) == 0 && strcmp(email, registeredUser[i].email) == 0 && strcmp(password, registeredUser[i].password) == 0) {
-            printf("Login successful. Welcome, %s!\n", username);
+            printf("\n\nLogin successful. Welcome, %s!\n", username);
             found=1;
+            return i;
             break;
         }
-        
-        else if(found!=1) {
-            if(strcmp(username, registeredUser[i].username) != 0){
-              printf("Invalid Username.Try Again!\n\n");
-            }
-            else if(strcmp(email, registeredUser[i].email) == 0){
-              printf("Invalid Email.Try Again!\n\n");
-            }
-            else if(strcmp(password, registeredUser[i].password)){
-             printf("Invalid Password.Try Again!\n\n");
-            }
-
-        }
-
     }
+    for(int i=0;i<user_count;i++){
+        if(found!=1) {
+            if(strcmp(username, registeredUser[i].username) != 0){
+                printf("\n\nInvalid Username.Try Again!\n\n");
+                return -1;
+            }
+            else if(strcmp(email, registeredUser[i].email) != 0){
+                printf("\n\nInvalid Email.Try Again!\n\n");
+                return -1;
+            }
+            else if(strcmp(password, registeredUser[i].password)!=0){
+                printf("\n\nInvalid Password.Try Again!\n\n");
+                return -1;
+            }
+        }
+    }    
 }
 
 int main() {
-    int choice;
+    int choice,user_ID;
 
     while (1) {
         //Navigation Menu
-        printf("\n| --- Menu --- |\n");
+        printf("| --- Menu --- |\n");
         printf("1. Register\n");
         printf("2. Login\n");
         printf("3. Exit\n");
@@ -151,13 +160,19 @@ int main() {
                 registerUser();
                 break;
             case 2:
-                loginUser();
+            user_ID=loginUser();
+                if(user_ID!=-1){
+                    int second_choice;
+                    printf("\n1.Call Log Details\n2.Generate Bill\n3.Repor\n4.Ledger\n5.Log Out\nSelect from Menu: ");
+                    scanf("%d",&second_choice);
+                    // switch(second_choice){}
+                }
                 break;
             case 3:
-                printf("Exiting the program. Goodbye!\n");
+                printf("\n\nExiting the program. Goodbye!\n");
                 return 0;
             default:
-                printf("Invalid choice! Please try again.\n");
+                printf("\n\nInvalid choice! Please try again.\n");
         }
     }
 
