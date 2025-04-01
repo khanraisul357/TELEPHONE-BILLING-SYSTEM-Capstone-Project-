@@ -124,8 +124,6 @@ void registerUser() {
     
 }   
     
-    
-
 //UDF for Log in Functionality
 int loginUser() {
     char username[50],email[50],password[50];
@@ -142,8 +140,7 @@ int loginUser() {
     
     maskPassword(password);
     password[strcspn(password, "\n")] = '\0';//replacing "\n" by "\0 in password string"
-
-    
+ 
     USER tempuser;
     FILE* binary_file = fopen("User Information.bin", "rb");
     if(binary_file==NULL){
@@ -151,6 +148,7 @@ int loginUser() {
         return -1;
     }
 
+    //reading file & loading data from file
     while(fread(&tempuser,sizeof(USER),1,binary_file)){
             
         if(strcmp(username, tempuser.username) == 0){
