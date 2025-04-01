@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include<conio.h>
 
-
 typedef struct usersInfo {
     int user_id;
     char username[13];
