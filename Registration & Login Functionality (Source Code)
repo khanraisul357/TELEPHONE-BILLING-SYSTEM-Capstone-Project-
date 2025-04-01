@@ -1,1 +1,255 @@
 
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include<conio.h>
+
+
+typedef struct usersInfo {
+    int user_id;
+    char username[13];
+    char email[30];
+    char phone[13];  
+    char password[20];
+    char address[50];
+    float balance;
+}USER;
+
+# define max_users 100
+USER registeredUser[max_users];
+int user_count=0;
+
+//UDF for password masking
+void maskPassword(char *password) {
+    char ch;
+    int i = 0;
+    
+    printf("Enter password: ");
+    while ((ch = getch())!= '\r') { // Ensure '\r' (carriage return) is handled correctly.
+        if (ch == '\b' && i > 0) { // Backspace handling
+            printf("\b \b");
+            i--;
+        } else if (isprint(ch) && i < 19) { // Limit password length to 19
+            password[i++] = ch;
+            printf("*");
+        }
+    }
+    password[i] = '\0';
+    
+}
+
+//UDF for checking valid/Invalid password
+int isPasswordValid(char *password) {
+    int hasUpper = 0, hasLower = 0, hasDigit = 0, hasSpecial = 0;
+    for (int i = 0; password[i]; i++) {
+        if (isupper(password[i])) 
+            hasUpper = 1;
+        else if (islower(password[i])) 
+            hasLower = 1;
+        else if (isdigit(password[i])) 
+            hasDigit = 1;
+        else 
+            hasSpecial = 1;
+    }
+    return (hasUpper && hasLower && hasDigit && hasSpecial && strlen(password) >= 8);
+}
+
+
+//UDF for Registration Functionality
+void registerUser() {
+
+    FILE* binary_file = fopen("User Information.bin", "a+b");
+    FILE* text_file=fopen("User Information.txt", "a");
+    int number_of_registered_users;
+
+    
+    if(binary_file==NULL || text_file==NULL){
+        printf("\nCannot Open File.Try Again!\n");
+        return;
+    }
+
+    printf("\n| --- Register --- |\n");
+
+    printf("Enter username: ");
+    fgets(registeredUser[user_count].username, sizeof(registeredUser[user_count].username), stdin);
+    registeredUser[user_count].username[strcspn(registeredUser[user_count].username, "\n")] = '\0';
+    
+    printf("Enter Email: ");
+    fgets(registeredUser[user_count].email, sizeof(registeredUser[user_count].email), stdin);
+    registeredUser[user_count].email[strcspn(registeredUser[user_count].email, "\n")] = '\0';
+    
+    //Checking whether this new user registered earlier or not   
+    rewind(binary_file);   
+    USER tempuser;//to store user details temporarily
+    while(fread(&tempuser,sizeof(USER),1,binary_file)){ 
+       if(strcmp(registeredUser[user_count].email, tempuser.email) == 0){    
+           printf("\n\nAlready registered with this email. Try Log In!\n\n");
+           fclose(binary_file);
+           fclose(text_file);
+           return;   
+       }
+    }
+
+    printf("Enter Phone Number: ");
+    fgets(registeredUser[user_count].phone, sizeof(registeredUser[user_count].phone), stdin);
+    registeredUser[user_count].phone[strcspn(registeredUser[user_count].phone, "\n")] = '\0';
+    
+    printf("Enter Address: ");
+    fgets(registeredUser[user_count].address, sizeof(registeredUser[user_count].address), stdin);
+    registeredUser[user_count].address[strcspn(registeredUser[user_count].address, "\n")] = '\0';
+    
+    do{
+        maskPassword(registeredUser[user_count].password);
+        if(!isPasswordValid(registeredUser[user_count].password)){
+           printf("\n\nInvalid Password,try again!\n\nPassword must contain:\n1.Uppercase Letter\n2.Lowercase Letter\n3.Numbers\n4.Special Symbol(*,!,$,@)\n5.Minimum 8 characters\n\n");
+        }
+        else{
+            registeredUser[user_count].user_id=user_count;
+            number_of_registered_users=user_count+1;
+            printf("\n\nRegistration Successful![%d]\n",number_of_registered_users);
+        }
+    }while(!isPasswordValid(registeredUser[user_count].password));
+        
+        //replacing "\n" by "\0 in password string"
+        registeredUser[user_count].password[strcspn(registeredUser[user_count].password, "\n")] = '\0';
+
+        //writing in binary file
+        fwrite(&registeredUser[user_count],sizeof(USER),1,binary_file);
+        //writing in text file
+        fprintf(text_file, "%d %s %s %s %s %s\n", registeredUser[user_count].user_id, registeredUser[user_count].username,registeredUser[user_count].email,registeredUser[user_count].phone,registeredUser[user_count].password,registeredUser[user_count].address);
+        
+        fclose(binary_file);
+        fclose(text_file);
+        user_count++;   
+                
+    
+}   
+    
+    
+
+//UDF for Log in Functionality
+int loginUser() {
+    char username[50],email[50],password[50];
+    int found=0,username_exist=0,email_exist=0,password_exist=0;
+
+    printf("\n| --- Login --- |\n");
+
+    printf("Enter username: ");
+    fgets(username,sizeof(username),stdin);
+    username[strcspn(username, "\n")] = '\0';
+    printf("Enter Email: ");
+    fgets(email,sizeof(email),stdin);
+    email[strcspn(email, "\n")] = '\0';
+    
+    maskPassword(password);
+    password[strcspn(password, "\n")] = '\0';//replacing "\n" by "\0 in password string"
+
+    
+    USER tempuser;
+    FILE* binary_file = fopen("User Information.bin", "rb");
+    if(binary_file==NULL){
+        printf("\nNo registered users found in the system!\n");
+        return -1;
+    }
+
+    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+            
+        if(strcmp(username, tempuser.username) == 0){
+            username_exist=1;
+            if(strcmp(email, tempuser.email) == 0){
+                email_exist=1;
+                if(strcmp(password, tempuser.password) == 0){
+                    password_exist=1;
+                    found=1;
+                    printf("\n\nLogin successful. Welcome, %s!\n\n", username);
+                    return tempuser.user_id;
+                }
+            }
+        }
+    }    
+   
+    fclose(binary_file);
+
+    // Now check what was incorrect and show the proper message
+    
+    if(found!=1){
+        if(username_exist!= 1){
+            printf("\n\nInvalid Username.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else if(email_exist!= 1){
+            printf("\n\nInvalid Email.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else if(password_exist!= 1){
+            printf("\n\nInvalid Password.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else {
+            printf("\n\nUser Not Registered!\n\n");
+            fclose(binary_file);
+            return -1;
+        }
+    }      
+}
+
+int main() {
+    int choice,user_ID;
+
+    while (1) {
+        //Navigation Menu
+        printf("\n| --- Menu --- |\n");
+        printf("1. Register\n");
+        printf("2. Login\n");
+        printf("3. Exit\n");
+        printf("Select from Navigation Menu: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                registerUser();
+                break;
+            case 2:
+                user_ID=loginUser();
+                printf("USER id= %d\n",user_ID);
+                if(user_ID!=-1){
+                    int second_choice;
+                    printf("| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
+                    scanf("%d",&second_choice);
+                    getchar();
+                    switch(second_choice){
+                        case 1:
+                        //   CallLogDetails(user_ID);
+                          break;
+                        case 2:
+                        //    GenerateBill();
+                           break;
+                        case 3:
+                        //    Report();
+                           break;   
+                        case 4:
+                        //    Ledger();
+                           break;
+                        case 5:
+                           break;
+                           
+                        default:
+                           printf("\n\nInvalid choice! Please try again.\n");
+                    }
+                }
+                break;
+            case 3:
+                printf("\nExiting the program. Goodbye!\n\n");
+                return 0;
+            default:
+                printf("\nInvalid choice! Please try again.\n\n");
+        }
+    }
+
+    return 0;
+}
