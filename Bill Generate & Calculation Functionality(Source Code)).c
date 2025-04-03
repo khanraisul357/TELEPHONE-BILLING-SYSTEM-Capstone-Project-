@@ -43,36 +43,88 @@ void generateBill(char phone[]) {
 
 // Main Function
 int main() {
-    int choice;
-    char phone[15];
+    int Choice,Sub_Choice_1,Sub_Choice_2,user_ID;
 
     while (1) {
-        // Navigation Menu
+        //Navigation Menu
         printf("\n| --- Menu --- |\n");
         printf("1. Register\n");
         printf("2. Login\n");
-        printf("3. Generate Bill\n");
-        printf("4. Exit\n");
+        printf("3. Exit\n");
         printf("Select from Navigation Menu: ");
-        scanf("%d", &choice);
+        scanf("%d", &Choice);
+        getchar();
 
-        switch (choice) {
+        switch (Choice) {
             case 1:
                 registerUser();
                 break;
             case 2:
-                loginUser();
+                user_ID=loginUser();
+                printf("USER id= %d\n",user_ID);
+
+                int logged_in=1;
+                if(user_ID!=-1){
+                    while(logged_in){
+                        //Dashboard Menu
+                        printf("\n| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
+                        scanf("%d",&Sub_Choice_1);
+                        getchar();
+                        switch(Sub_Choice_1){
+                            case 1:
+                                //Call Log Menu
+                                printf("\n| --- Call Logs --- |\n");
+                                printf("1. Dialed\n");
+                                printf("2. Received\n");
+                                printf("3. Missed\n");
+                                printf("4. Dashboard\n");
+                                printf("Select: ");
+                                scanf("%d",&Sub_Choice_2);
+                                getchar();
+                        
+                                switch(Sub_Choice_2){
+                                    case 1:
+                                      //   CallLogDetails(user_ID,Sub_Choice_2);
+                                      break;
+                                      case 2:
+                                         //
+                                         break;
+                                      case 3:
+                                         //
+                                         break;
+                                      case 4:
+                                         break;//return to Dashboard from Call Log Menu
+                                      default: 
+                                          printf("\n\nInvalid choice! Please try again.\n");
+                                      
+                                }
+                                
+                                break;
+                            case 2:
+                            //    GenerateBill();
+                               break;
+                            case 3:
+                            //    Report();
+                               break;   
+                            case 4:
+                            //    Ledger();
+                               break;
+                            case 5:
+                               printf("\nLogging out...\n");
+                               logged_in=0;//return to Main Menu from Dashboard
+                               break;
+                               
+                            default:
+                               printf("\n\nInvalid choice! Please try again.\n");
+                        }
+                    }    
+                }
                 break;
             case 3:
-                printf("Enter phone number: ");
-                scanf("%s", phone);
-                generateBill(phone);
-                break;
-            case 4:
-                printf("Exiting the program. Goodbye!\n");
+                printf("\nExiting the program. Goodbye!\n\n");
                 return 0;
             default:
-                printf("Invalid choice. Please try again.\n");
+                printf("\nInvalid choice! Please try again.\n\n");
         }
     }
 
