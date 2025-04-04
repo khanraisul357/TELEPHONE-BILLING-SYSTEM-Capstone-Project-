@@ -1,1 +1,98 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct usersInfo {
+    int user_id;
+    char username[13];
+    char email[30];
+    char phone[13];  
+    char password[20];
+    char address[50];
+    float balance;
+}USER;
+
+
+typedef struct callInfo{
+    char callerNumber[20];
+    char receiverNumber[20];
+    char date[15];
+    char call_received_Time[30]; // User registered time
+    char call_end_Time[30]; // User login time
+    char duration[10];
+    char callType[10];
+    int duration;
+    float cost;
+}CALLlogs;
+
+#define max_calls 100
+CALLlogs calls[max_calls];
+int callLOG_count=0;
+
+// void CallLogDetails(int user_id,int select){
+    
+//     if(select==1){
+//         USER tempuser;
+//         while(fread(&tempuser,sizeof(USER),1,binary_file)){
+//             if(strcmp(user_id,tempuser.user_id)){
+                
+//                 printf("Enter DialSer Number: ");
+//                 fgets(calls[callLOG_count].callerNumber,sizeof(calls[callLOG_count].callerNumber),stdin);
+//                 calls[callLOG_count].callerNumber[strcspn(calls[callLOG_count].callerNumber, "\n")] = '\0';    
+                    
+//                 printf("Enter Date: ");
+//                 fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+//                 calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0'; 
+
+//                 printf("Enter Time: ");
+//                 fgets(calls[callLOG_count].call_received_Time,sizeof(calls[callLOG_count].call_received_Time),stdin);
+//                 calls[callLOG_count].call_received_Time[strcspn(calls[callLOG_count].call_received_Time, "\n")] = '\0';    
+                
+//                 printf("Enter Call Duration: ");
+//                 fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+//                 calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0'    
+                
+//                 printf("Enter Call Type: ");
+//                 fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+//                 calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+                
+                
+//             }
+//         }        
+//     }
+    
+//     else if(select==2){
+//         USER tempuser;
+//         while(fread(&tempuser,sizeof(USER),1,binary_file)){
+//             if(strcmp(user_id,tempuser.user_id)){
+//                 printf("Enter Receiver Number: ");
+//                 fgets(calls[callLOG_count].receiverNumber,sizeof(calls[callLOG_count].receiverNumber),stdin);
+//                 calls[callLOG_count].receiverNumber[strcspn(calls[callLOG_count].receiverNumber, "\n")] = '\0';    
+//                 printf("Enter Date: ");
+//                 fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+//                 calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
+//                 printf("Enter Time: ");
+//                 fgets(calls[callLOG_count].call_received_Time,sizeof(calls[callLOG_count].call_received_Time),stdin);
+//                 calls[callLOG_count].call_received_Time[strcspn(calls[callLOG_count].call_received_Time, "\n")] = '\0';    
+//                 printf("Enter Call Duration: ");
+//                 fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+//                 calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0'    
+                
+//                 printf("Enter Call Type: ");
+//                 fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+//                 calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+//             }  
+                
+//         }    
+//     }
+
+//     FILE* binary_file=fopen("User Information","a+b");
+//     FILE* text_file=fopen("User Info.txt","a");
+
+//     if(binary_file==NULL || text_file==NULL){
+//         printf("Cannot open Call Log Details!");
+//     }
+    
+
+    
+// }
 
