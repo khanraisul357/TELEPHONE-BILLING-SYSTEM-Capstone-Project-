@@ -96,3 +96,90 @@ int callLOG_count=0;
     
 // }
 
+//Main Function
+int main() {
+    int Choice,user_ID;
+
+    while (1) {
+        //Navigation Menu
+        printf("\n| --- Menu --- |\n");
+        printf("1. Register\n");
+        printf("2. Login\n");
+        printf("3. Exit\n");
+        printf("Select from Navigation Menu: ");
+        scanf("%d", &Choice);
+        getchar();
+
+        switch (Choice) {
+            case 1:
+                registerUser();
+                break;
+            case 2:
+                user_ID=loginUser();
+                printf("USER id= %d\n",user_ID);
+                if(user_ID!=-1){
+                    int Sub_Choice_1;
+                    while(1){
+                        printf("| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
+                        scanf("%d",&Sub_Choice_1);
+                        getchar();
+                        switch(Sub_Choice_1){
+                            case 1:
+                                int Sub_Choice_2;
+                                printf("\n| --- Call Logs --- |\n");
+                                printf("1. Dialed\n");
+                                printf("2. Received\n");
+                                printf("3. Missed\n");
+                                printf("4. Dashboard\n");
+                                printf("Select: \n");
+                                scanf("%d",&Sub_Choice_2);
+                                getchar();
+                        
+                                switch(Sub_Choice_2){
+                                    case 1:
+                                    //   CallLogDetails(user_ID,Sub_Choice_2);
+                                      break;
+                                      case 2:
+                                         //
+                                         break;
+                                      case 3:
+                                         //
+                                         break;
+                                      case 4:
+                                         break;
+                                      default: 
+                                          printf("\n\nInvalid choice! Please try again.\n");
+                                      
+                                }
+                                
+                                break;
+                            case 2:
+                            //    GenerateBill();
+                               break;
+                            case 3:
+                            //    Report();
+                               break;   
+                            case 4:
+                            //    Ledger();
+                               break;
+                            case 5:
+                               return 0;
+                               break;
+                               
+                            default:
+                               printf("\n\nInvalid choice! Please try again.\n");
+                        }
+                    }    
+                }
+                break;
+            case 3:
+                printf("\nExiting the program. Goodbye!\n\n");
+                return 0;
+            default:
+                printf("\nInvalid choice! Please try again.\n\n");
+        }
+    }
+
+    return 0;
+}
+
