@@ -11,16 +11,18 @@ typedef struct usersInfo {
     float balance;
 }USER;
 
+//Define registerUser() Function to proceed
+//Define loginUser() Function to proceed
+
 
 typedef struct callInfo{
-    char callerNumber[20];
-    char receiverNumber[20];
+    char dialed_Number[20];
+    char received_Number[20];
+    char missed_Number[20];
     char date[15];
-    char call_received_Time[30]; // User registered time
-    char call_end_Time[30]; // User login time
+    char time[30]; 
     char duration[10];
-    char callType[10];
-    int duration;
+    char callType[20];
     float cost;
 }CALLlogs;
 
@@ -28,77 +30,121 @@ typedef struct callInfo{
 CALLlogs calls[max_calls];
 int callLOG_count=0;
 
-// void CallLogDetails(int user_id,int select){
+void CallLogDetails(int select){
     
-//     if(select==1){
-//         USER tempuser;
-//         while(fread(&tempuser,sizeof(USER),1,binary_file)){
-//             if(strcmp(user_id,tempuser.user_id)){
-                
-//                 printf("Enter DialSer Number: ");
-//                 fgets(calls[callLOG_count].callerNumber,sizeof(calls[callLOG_count].callerNumber),stdin);
-//                 calls[callLOG_count].callerNumber[strcspn(calls[callLOG_count].callerNumber, "\n")] = '\0';    
-                    
-//                 printf("Enter Date: ");
-//                 fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
-//                 calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0'; 
-
-//                 printf("Enter Time: ");
-//                 fgets(calls[callLOG_count].call_received_Time,sizeof(calls[callLOG_count].call_received_Time),stdin);
-//                 calls[callLOG_count].call_received_Time[strcspn(calls[callLOG_count].call_received_Time, "\n")] = '\0';    
-                
-//                 printf("Enter Call Duration: ");
-//                 fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
-//                 calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0'    
-                
-//                 printf("Enter Call Type: ");
-//                 fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
-//                 calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
-                
-                
-//             }
-//         }        
-//     }
     
-//     else if(select==2){
-//         USER tempuser;
-//         while(fread(&tempuser,sizeof(USER),1,binary_file)){
-//             if(strcmp(user_id,tempuser.user_id)){
-//                 printf("Enter Receiver Number: ");
-//                 fgets(calls[callLOG_count].receiverNumber,sizeof(calls[callLOG_count].receiverNumber),stdin);
-//                 calls[callLOG_count].receiverNumber[strcspn(calls[callLOG_count].receiverNumber, "\n")] = '\0';    
-//                 printf("Enter Date: ");
-//                 fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
-//                 calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
-//                 printf("Enter Time: ");
-//                 fgets(calls[callLOG_count].call_received_Time,sizeof(calls[callLOG_count].call_received_Time),stdin);
-//                 calls[callLOG_count].call_received_Time[strcspn(calls[callLOG_count].call_received_Time, "\n")] = '\0';    
-//                 printf("Enter Call Duration: ");
-//                 fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
-//                 calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0'    
-                
-//                 printf("Enter Call Type: ");
-//                 fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
-//                 calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
-//             }  
-                
-//         }    
-//     }
+    FILE* text_file=fopen("Call Log Management.txt","a+");
+    if(text_file==NULL){
+        printf("Cannot open Call Log Details!");
+    }
 
-//     FILE* binary_file=fopen("User Information","a+b");
-//     FILE* text_file=fopen("User Info.txt","a");
+    if(select==1){
+        printf("Enter Dialed Number: ");
+        fgets(calls[callLOG_count].dialed_Number,sizeof(calls[callLOG_count].dialed_Number),stdin);
+        calls[callLOG_count].dialed_Number[strcspn(calls[callLOG_count].dialed_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0'; 
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';    
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';   
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| call log count: %d\n---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n\n\n",callLOG_count,calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType);
 
-//     if(binary_file==NULL || text_file==NULL){
-//         printf("Cannot open Call Log Details!");
-//     }
-    
+        printf("\n======= Dialed =======\n");
+        printf("---| Dialed Number: %s\n", calls[callLOG_count].dialed_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
 
-    
-// }
+}
+
+
+    else if(select==2){
+        printf("Enter Received Number: ");
+        fgets(calls[callLOG_count].received_Number,sizeof(calls[callLOG_count].received_Number),stdin);
+        calls[callLOG_count].received_Number[strcspn(calls[callLOG_count].received_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
+        
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';    
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';    
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| call log count: %d\n---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n\n\n",callLOG_count,calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType);
+
+        printf("\n======= Received =======\n");
+        printf("---| Received Number: %s\n", calls[callLOG_count].received_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
+
+}  
+
+
+    else if(select==3){
+        printf("Enter Missed Number: ");
+        fgets(calls[callLOG_count].received_Number,sizeof(calls[callLOG_count].received_Number),stdin);
+        calls[callLOG_count].received_Number[strcspn(calls[callLOG_count].received_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
+        
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';   
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';    
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| call log count: %d\n---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n\n\n",callLOG_count,calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType);
+
+
+        printf("\n======= Missed =======\n");
+        printf("---| Missed Number: %s\n", calls[callLOG_count].missed_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
+
+}
+
+fclose(text_file);
+callLOG_count++;
+
+}
+
 
 //Main Function
 int main() {
-    int Choice,user_ID;
+    int Choice,Sub_Choice_1,Sub_Choice_2,user_ID;
 
     while (1) {
         //Navigation Menu
@@ -117,57 +163,65 @@ int main() {
             case 2:
                 user_ID=loginUser();
                 printf("USER id= %d\n",user_ID);
+
+                int logged_in=1;
                 if(user_ID!=-1){
-                    int Sub_Choice_1;
-                    while(1){
-                        printf("| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
+                    while(logged_in){
+                        //Dashboard Menu
+                        printf("\n| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
                         scanf("%d",&Sub_Choice_1);
                         getchar();
+
+                        int entered_call_log=1;
                         switch(Sub_Choice_1){
                             case 1:
-                                int Sub_Choice_2;
-                                printf("\n| --- Call Logs --- |\n");
-                                printf("1. Dialed\n");
-                                printf("2. Received\n");
-                                printf("3. Missed\n");
-                                printf("4. Dashboard\n");
-                                printf("Select: \n");
-                                scanf("%d",&Sub_Choice_2);
-                                getchar();
-                        
-                                switch(Sub_Choice_2){
-                                    case 1:
-                                    //   CallLogDetails(user_ID,Sub_Choice_2);
-                                      break;
-                                      case 2:
-                                         //
-                                         break;
-                                      case 3:
-                                         //
-                                         break;
-                                      case 4:
-                                         break;
-                                      default: 
-                                          printf("\n\nInvalid choice! Please try again.\n");
-                                      
+                                while(entered_call_log){
+                                    //Call Log Menu
+                                    printf("\n| --- Call Logs --- |\n");
+                                    printf("1. Dialed\n");
+                                    printf("2. Received\n");
+                                    printf("3. Missed\n");
+                                    printf("4. Dashboard\n");
+                                    printf("Select: ");
+                                    scanf("%d",&Sub_Choice_2);
+                                    getchar();
+                                    
+                                    switch(Sub_Choice_2){
+                                        case 1:
+                                                CallLogDetails(Sub_Choice_2);
+                                            break;
+                                        case 2:
+                                                CallLogDetails(Sub_Choice_2);
+                                                break;
+                                        case 3:
+                                                CallLogDetails(Sub_Choice_2); 
+                                                break;
+                                        case 4:
+                                        entered_call_log=0;//return to Dashboard from Call Log Menu
+                                        break;
+                                        default: 
+                                                printf("\n\nInvalid choice! Please try again.\n");
+                                            
+                                            }      
                                 }
                                 
-                                break;
+                            break;
+                            
                             case 2:
-                            //    GenerateBill();
-                               break;
+                                //GenerateBill();
+                                break;
                             case 3:
-                            //    Report();
-                               break;   
+                                //    Report();
+                                break;   
                             case 4:
-                            //    Ledger();
-                               break;
+                                //    Ledger();
+                                break;
                             case 5:
-                               return 0;
-                               break;
-                               
+                                printf("\nLogging out...\n");
+                                logged_in=0;//return to Main Menu from Dashboard
+                                break;
                             default:
-                               printf("\n\nInvalid choice! Please try again.\n");
+                                printf("\n\nInvalid choice! Please try again.\n");
                         }
                     }    
                 }
@@ -182,4 +236,3 @@ int main() {
 
     return 0;
 }
-
