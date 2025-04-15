@@ -1,0 +1,853 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include<conio.h>
+
+
+//DEFINING STRUCTURE FOR USER DETAILS
+typedef struct usersInfo {
+    int user_id;
+    char username[13];
+    char email[30];
+    char phone[13];  
+    char password[20];
+    char address[50];
+    float balance;
+}USER;
+
+# define max_users 100
+USER registeredUser[max_users];
+int user_count=0;
+
+
+//DEFINING STRUCTURE FOR CALL DETAILS
+typedef struct callInfo{
+    char dialed_Number[20];
+    char received_Number[20];
+    char missed_Number[20];
+    char date[15];
+    char time[30]; 
+    char duration[10];
+    char callType[20];
+}CALLlogs;
+
+#define max_calls 100
+CALLlogs calls[max_calls];
+int callLOG_count=0;
+
+
+//UDF FOR MASKING PASSWORD
+void maskPassword(char *password) {
+    char ch;
+    int i = 0;
+    
+    printf("Enter password: ");
+    while ((ch = getch())!= '\r') { // Ensure '\r' (carriage return) is handled correctly.
+        if (ch == '\b' && i > 0) { // Backspace handling
+            printf("\b \b");
+            i--;
+        } else if (isprint(ch) && i < 19) { // Limit password length to 19
+            password[i++] = ch;
+            printf("*");
+        }
+    }
+    password[i] = '\0';
+    
+}
+
+
+//UDF FOR CHECKING VALID/INVALID PASSWORD
+int isPasswordValid(char *password) {
+    int hasUpper = 0, hasLower = 0, hasDigit = 0, hasSpecial = 0;
+    for (int i = 0; password[i]; i++) {
+        if (isupper(password[i])) 
+            hasUpper = 1;
+        else if (islower(password[i])) 
+            hasLower = 1;
+        else if (isdigit(password[i])) 
+            hasDigit = 1;
+        else 
+            hasSpecial = 1;
+    }
+    return (hasUpper && hasLower && hasDigit && hasSpecial && strlen(password) >= 8);
+}
+
+
+//UDF FOR REGISTRATION/SIGN-UP FUNCTIONALITY
+void registerUser() {
+
+    FILE* binary_file = fopen("User Information.bin", "a+b");
+    FILE* text_file=fopen("User Information.txt", "a");
+    int number_of_registered_users;
+
+    
+    if(binary_file==NULL || text_file==NULL){
+        printf("\nCannot Open File.Try Again!\n");
+        return;
+    }
+
+    printf("\n| --- Register --- |\n");
+
+    printf("Enter username: ");
+    fgets(registeredUser[user_count].username, sizeof(registeredUser[user_count].username), stdin);
+    registeredUser[user_count].username[strcspn(registeredUser[user_count].username, "\n")] = '\0';
+    
+    printf("Enter Email: ");
+    fgets(registeredUser[user_count].email, sizeof(registeredUser[user_count].email), stdin);
+    registeredUser[user_count].email[strcspn(registeredUser[user_count].email, "\n")] = '\0';
+    
+    //Checking whether this new user registered earlier or not   
+    rewind(binary_file);   
+    USER tempuser;//to store user details temporarily
+    while(fread(&tempuser,sizeof(USER),1,binary_file)){ 
+       if(strcmp(registeredUser[user_count].email, tempuser.email) == 0){    
+           printf("\n\nAlready registered with this email. Try Log In!\n\n");
+           fclose(binary_file);
+           fclose(text_file);
+           return;   
+       }
+    }
+
+    printf("Enter Phone Number: ");
+    fgets(registeredUser[user_count].phone, sizeof(registeredUser[user_count].phone), stdin);
+    registeredUser[user_count].phone[strcspn(registeredUser[user_count].phone, "\n")] = '\0';
+    
+    printf("Enter Address: ");
+    fgets(registeredUser[user_count].address, sizeof(registeredUser[user_count].address), stdin);
+    registeredUser[user_count].address[strcspn(registeredUser[user_count].address, "\n")] = '\0';
+    
+    do{
+        maskPassword(registeredUser[user_count].password);
+        if(!isPasswordValid(registeredUser[user_count].password)){
+           printf("\n\nInvalid Password,try again!\n\nPassword must contain:\n1.Uppercase Letter\n2.Lowercase Letter\n3.Numbers\n4.Special Symbol(*,!,$,@)\n5.Minimum 8 characters\n\n");
+        }
+        else{
+            registeredUser[user_count].user_id=user_count;
+            number_of_registered_users=user_count+1;
+            printf("\n\nRegistration Successful![%d]\n",number_of_registered_users);
+        }
+    }while(!isPasswordValid(registeredUser[user_count].password));
+        
+        //replacing "\n" by "\0 in password string"
+        registeredUser[user_count].password[strcspn(registeredUser[user_count].password, "\n")] = '\0';
+
+        //writing in binary file
+        fwrite(&registeredUser[user_count],sizeof(USER),1,binary_file);
+        //writing in text file
+        fprintf(text_file, "%d %s %s %s %s %s\n", registeredUser[user_count].user_id, registeredUser[user_count].username,registeredUser[user_count].email,registeredUser[user_count].phone,registeredUser[user_count].password,registeredUser[user_count].address);
+        
+        fclose(binary_file);
+        fclose(text_file);
+        user_count++;   
+                
+    
+}   
+
+
+//UDF FOT LOG-IN/SIGN-IN FUNCTIONALITY
+int loginUser() {
+    char username[50],email[50],password[50];
+    int found=0,username_exist=0,email_exist=0,password_exist=0;
+
+    printf("\n| --- Login --- |\n");
+
+    printf("Enter username: ");
+    fgets(username,sizeof(username),stdin);
+    username[strcspn(username, "\n")] = '\0';
+    printf("Enter Email: ");
+    fgets(email,sizeof(email),stdin);
+    email[strcspn(email, "\n")] = '\0';
+    
+    maskPassword(password);
+    password[strcspn(password, "\n")] = '\0';//replacing "\n" by "\0 in password string"
+ 
+    USER tempuser;
+    FILE* binary_file = fopen("User Information.bin", "rb");
+    if(binary_file==NULL){
+        printf("\nNo registered users found in the system!\n");
+        return -1;
+    }
+
+    //reading file & loading data from file
+    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+            
+        if(strcmp(username, tempuser.username) == 0){
+            username_exist=1;
+            if(strcmp(email, tempuser.email) == 0){
+                email_exist=1;
+                if(strcmp(password, tempuser.password) == 0){
+                    password_exist=1;
+                    found=1;
+                    printf("\n\nLogin successful. Welcome, %s!\n\n", username);
+                    return tempuser.user_id;
+                }
+            }
+        }
+    }    
+   
+    fclose(binary_file);
+
+    // Now check what was incorrect and show the proper message
+    
+    if(found!=1){
+        if(username_exist!= 1){
+            printf("\n\nInvalid Username.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else if(email_exist!= 1){
+            printf("\n\nInvalid Email.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else if(password_exist!= 1){
+            printf("\n\nInvalid Password.Try Again!\n\n");
+              fclose(binary_file);
+              return -1;
+        }
+        else {
+            printf("\n\nUser Not Registered!\n\n");
+            fclose(binary_file);
+            return -1;
+        }
+    }      
+}
+
+
+//UDF FOR CALL LOG MANAGEMENT FUNCTIONALITY
+void CallLogDetails(int select);
+
+
+//UDF FOR BILL GENERATE FUNCTIONALITY
+int convertToSeconds(char *timeStr);
+int validatePrefix(const char *number, int operator_choice);
+void GenerateBill(int select);
+
+
+//MAIN FUNCTION
+int main() {
+    int Choice,Sub_Choice_1,Sub_Choice_2,Sub_Choice_3,user_ID;
+
+    while (1) {
+        //Navigation Menu
+        printf("\n| --- Menu --- |\n");
+        printf("1. Register\n");
+        printf("2. Login\n");
+        printf("3. Exit\n");
+        printf("Select from Navigation Menu(1,2,3): ");
+        scanf("%d", &Choice);
+        getchar();
+
+        switch (Choice) {
+            case 1:
+                registerUser();
+                break;
+            case 2:
+                user_ID=loginUser();
+                printf("USER id= %d\n",user_ID);
+
+                int logged_in=1;
+                if(user_ID!=-1){
+                    while(logged_in){
+                        //Dashboard Menu
+                        printf("\n| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect(1,2,3,4): ");
+                        scanf("%d",&Sub_Choice_1);
+                        getchar();
+
+                        int entered_call_log=1;
+                        int entered_operator_menu=1;
+                        switch(Sub_Choice_1){
+                            case 1:
+                                while(entered_call_log){
+                                    //Call Log Menu
+                                    printf("\n| --- Call Logs --- |\n");
+                                    printf("1. Dialed\n");
+                                    printf("2. Received\n");
+                                    printf("3. Missed\n");
+                                    printf("4. Dashboard\n");
+                                    printf("Select(1,2,3,4): ");
+                                    scanf("%d",&Sub_Choice_2);
+                                    getchar();
+                                    
+                                    switch(Sub_Choice_2){
+                                        case 1:
+                                                CallLogDetails(Sub_Choice_2);
+                                            break;
+                                        case 2:
+                                                CallLogDetails(Sub_Choice_2);
+                                                break;
+                                        case 3:
+                                                CallLogDetails(Sub_Choice_2); 
+                                                break;
+                                        case 4:
+                                        entered_call_log=0;//return to Dashboard from Call Log Menu
+                                        break;
+                                        default: 
+                                                printf("\n\nInvalid choice! Please try again.\n");
+                                            
+                                            }      
+                                }
+                                
+                            break;
+                            
+                            case 2:
+                                while(entered_operator_menu){
+                                    //Operator Menu
+                                    printf("\n| --- Select Your Number Operator --- |\n");
+                                    printf("1. Grameenphone\n");
+                                    printf("2. Banglalink\n");
+                                    printf("3. Robi\n");
+                                    printf("4. Airtel\n");
+                                    printf("5. Teletalk\n");
+                                    printf("6. Dashboard\n");
+                                    printf("Select(1,2,3,4,5,6): ");
+                                    scanf("%d",&Sub_Choice_3);
+                                    getchar();
+                                    
+                                    switch(Sub_Choice_3){
+                                        case 1:
+                                                GenerateBill(Sub_Choice_3);
+                                            break;
+                                        case 2:
+                                                GenerateBill(Sub_Choice_3);
+                                                break;
+                                        case 3:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 4:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 5:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 6:
+                                                entered_operator_menu=0;
+                                                break;//return to Dashboard from Operator Menu
+                                        default: 
+                                                printf("\n\nInvalid choice! Please try again.\n");
+                                            
+                                            }      
+                                }
+                        
+                            break;
+                                break;
+                            case 3:
+                                //    Report();
+                                break;   
+                            case 4:
+                                //    Ledger();
+                                break;
+                            case 5:
+                                printf("\nLogging out...\n");
+                                logged_in=0;//return to Main Menu from Dashboard
+                                break;
+                            default:
+                                printf("\n\nInvalid choice! Please try again.\n");
+                        }
+                    }    
+                }
+                break;
+            case 3:
+                printf("\nExiting the program. Goodbye!\n\n");
+                return 0;
+            default:
+                printf("\nInvalid choice! Please try again.\n\n");
+        }
+    }
+
+    return 0;
+}
+
+
+//CALL LOG MANAGEMENT FUNCTIONALITY
+void CallLogDetails(int select){
+    
+    
+    FILE* text_file=fopen("Call Log Management.txt","a+");
+    if(text_file==NULL){
+        printf("Cannot open Call Log Details!");
+    }
+
+    if(select==1){
+        printf("\nEnter Dialed Number: ");
+        fgets(calls[callLOG_count].dialed_Number,sizeof(calls[callLOG_count].dialed_Number),stdin);
+        calls[callLOG_count].dialed_Number[strcspn(calls[callLOG_count].dialed_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0'; 
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';    
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';   
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
+
+        printf("\n======= Dialed =======\n");
+        printf("---| Dialed Number: %s\n", calls[callLOG_count].dialed_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
+    }
+
+
+    else if(select==2){
+        printf("\nEnter Received Number: ");
+        fgets(calls[callLOG_count].received_Number,sizeof(calls[callLOG_count].received_Number),stdin);
+        calls[callLOG_count].received_Number[strcspn(calls[callLOG_count].received_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
+        
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';    
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';    
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
+
+        printf("\n======= Received =======\n");
+        printf("---| Received Number: %s\n", calls[callLOG_count].received_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
+    }  
+
+
+    else if(select==3){
+        printf("\nEnter Missed Number: ");
+        fgets(calls[callLOG_count].received_Number,sizeof(calls[callLOG_count].received_Number),stdin);
+        calls[callLOG_count].received_Number[strcspn(calls[callLOG_count].received_Number, "\n")] = '\0';    
+        
+        printf("Enter Date: ");
+        fgets(calls[callLOG_count].date,sizeof(calls[callLOG_count].date),stdin);
+        calls[callLOG_count].date[strcspn(calls[callLOG_count].date, "\n")] = '\0';    
+        
+        printf("Enter Time: ");
+        fgets(calls[callLOG_count].time,sizeof(calls[callLOG_count].time),stdin);
+        calls[callLOG_count].time[strcspn(calls[callLOG_count].time, "\n")] = '\0';   
+        
+        printf("Enter Call Duration: ");
+        fgets(calls[callLOG_count].duration,sizeof(calls[callLOG_count].duration),stdin);
+        calls[callLOG_count].duration[strcspn(calls[callLOG_count].duration, "\n")] = '\0';    
+        
+        printf("Enter Call Type: ");
+        fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
+        calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
+        
+        fprintf(text_file, "---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
+
+
+        printf("\n======= Missed =======\n");
+        printf("---| Missed Number: %s\n", calls[callLOG_count].missed_Number);
+        printf("---| Date: %s\n", calls[callLOG_count].date);
+        printf("---| Time: %s\n", calls[callLOG_count].time);
+        printf("---| Duration: %s\n", calls[callLOG_count].duration);
+        printf("---| Type: %s\n\n", calls[callLOG_count].callType);
+    }
+
+fclose(text_file);
+callLOG_count++;
+
+}
+
+
+int convertToSeconds(char *timeStr) {
+    int hours, minutes, seconds;
+    sscanf(timeStr, "%d:%d:%d", &hours, &minutes, &seconds);
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
+int validatePrefix(const char *number, int operator_choice) {
+    const char *correct_prefix;
+    switch(operator_choice) {
+        case 1: correct_prefix = "017"; break;
+        case 2: correct_prefix = "019"; break;
+        case 3: correct_prefix = "018"; break;
+        case 4: correct_prefix = "016"; break;
+        case 5: correct_prefix = "015"; break;
+        default: return 0;
+    }
+    return strncmp(number, correct_prefix, 3) == 0;
+}
+
+//BILL GENERATE & CALCULATION
+void GenerateBill(int select){
+    char user_number[13];
+    char dialed_number[13];
+    float cost;
+
+    printf("\nEnter Your Number: ");
+    fgets(user_number, sizeof(user_number), stdin);
+    user_number[strcspn(user_number, "\n")] = '\0'; // remove newline
+
+    if (validatePrefix(user_number, select)==0) {
+        printf("\nInvalid number!\nYour number does not match with your selected operator, Try Again!\n");
+        return;
+    }
+
+    printf("\nEnter number you called or dialed: ");
+    fgets(dialed_number, sizeof(dialed_number), stdin);
+    dialed_number[strcspn(dialed_number, "\n")] = '\0'; // remove newline
+
+    FILE* text_file = fopen("Call Log Management.txt", "r");
+    if(text_file==NULL){
+        printf("\nNumber Not registered!\n");
+        return;
+    }
+
+    CALLlogs templog;
+    char line[100];//buffer(a string) to store each line readed by fgets
+    memset(&templog, 0, sizeof(templog));
+
+
+    //Grameenphone Operator
+    if(select==1){ 
+        //reading file & loading data from file
+        while(fgets(line, sizeof(line), text_file)){
+
+            //extracting dialed_Number from the line(---| Dialed Number: xxxxxxxxx)
+            if(strncmp(line, "---| Dialed Number:", 19) == 0){
+                sscanf(line, "---| Dialed Number: %s", templog.dialed_Number);
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Date: %s", templog.date);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Time: %s", templog.time);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Duration: %s",templog.duration);//extracting duration from the line(---| Duration: hh:mm:ss)
+                int integer_duration = convertToSeconds(templog.duration);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Type: %s", templog.callType);
+
+            
+                if (strcmp(dialed_number, templog.dialed_Number) == 0) {
+                    if(strcmp(templog.callType,"local")==0){
+                        float cost_per_second = 0.031;
+                        cost = integer_duration * cost_per_second;
+                    }
+                    else{
+                        cost = integer_duration* 0.5;
+                    }
+
+                    // Display bill
+                    printf("\n======= BILL =======\n\n");
+
+                    USER tempuser;
+                    FILE* binary_file = fopen("User Information.bin", "rb");
+                    if(binary_file==NULL){
+                        printf("\nNumber Not Registered, Register First!\n");
+                        fclose(binary_file);
+                        return;
+                    }
+                    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+                        if(strcmp(user_number, tempuser.phone) == 0){
+                            printf("User Number: %s\n", user_number);
+                            break;
+                        }
+                    }
+                    
+                    fclose(binary_file);
+                    
+                    printf("Dialed Number: %s\n", templog.dialed_Number);
+                    printf("Call Date: %s\n", templog.date);
+                    printf("Call Time: %s\n", templog.time);
+                    printf("Call Type: %s\n", templog.callType);
+                    printf("Call Duration: %s (%d seconds)\n", templog.duration,integer_duration);
+                    printf("Total Cost= %.2f BDT\n",cost);
+                    printf("\n====================\n");
+                    return;                    
+                }
+
+                memset(&templog, 0, sizeof(templog)); // Reset for next entry
+
+            }
+        }
+    }
+    
+
+    //Banglalink Operator
+    if(select==2){ 
+        //reading file & loading data from file
+        while(fgets(line, sizeof(line), text_file)){
+
+            //extracting dialed_Number from the line(---| Dialed Number: xxxxxxxxx)
+            if(strncmp(line, "---| Dialed Number:", 19) == 0){
+                sscanf(line, "---| Dialed Number: %s", templog.dialed_Number);
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Date: %s", templog.date);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Time: %s", templog.time);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Duration: %s",templog.duration);//extracting duration from the line(---| Duration: hh:mm:ss)
+                int integer_duration = convertToSeconds(templog.duration);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Type: %s", templog.callType);
+
+            
+                if (strcmp(dialed_number, templog.dialed_Number) == 0) {
+                    if(strcmp(templog.callType,"local")==0){
+                        float cost_per_second = 0.0102;
+                        cost = integer_duration * cost_per_second;
+                    }
+                    else{
+                        cost = integer_duration* 0.5;
+                    }
+
+                    // Display bill
+                    printf("\n======= BILL =======\n\n");
+
+                    USER tempuser;
+                    FILE* binary_file = fopen("User Information.bin", "rb");
+                    if(binary_file==NULL){
+                        printf("\nNumber Not Registered, Register First!\n");
+                        fclose(binary_file);
+                        return;
+                    }
+                    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+                        if(strcmp(user_number, tempuser.phone) == 0){
+                            printf("User Number: %s\n", user_number);
+                            break;
+                        }
+                    }
+                    
+                    fclose(binary_file);
+                    
+                    printf("Dialed Number: %s\n", templog.dialed_Number);
+                    printf("Call Date: %s\n", templog.date);
+                    printf("Call Time: %s\n", templog.time);
+                    printf("Call Type: %s\n", templog.callType);
+                    printf("Call Duration: %s (%d seconds)\n", templog.duration,integer_duration);
+                    printf("Total Cost= %.2f BDT\n",cost);
+                    printf("\n====================\n");
+                    return;                    
+                }
+
+                memset(&templog, 0, sizeof(templog)); // Reset for next entry
+
+            }
+        }
+    }
+
+    //Robi Operator
+    if(select==3){ 
+        //reading file & loading data from file
+        while(fgets(line, sizeof(line), text_file)){
+
+            //extracting dialed_Number from the line(---| Dialed Number: xxxxxxxxx)
+            if(strncmp(line, "---| Dialed Number:", 19) == 0){
+                sscanf(line, "---| Dialed Number: %s", templog.dialed_Number);
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Date: %s", templog.date);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Time: %s", templog.time);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Duration: %s",templog.duration);//extracting duration from the line(---| Duration: hh:mm:ss)
+                int integer_duration = convertToSeconds(templog.duration);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Type: %s", templog.callType);
+
+            
+                if (strcmp(dialed_number, templog.dialed_Number) == 0) {
+                    if(strcmp(templog.callType,"local")==0){
+                        float cost_per_second = 0.015;
+                        cost = integer_duration * cost_per_second;
+                    }
+                    else{
+                        cost = integer_duration* 0.5;
+                    }
+
+                    // Display bill
+                    printf("\n======= BILL =======\n\n");
+                    USER tempuser;
+                    FILE* binary_file = fopen("User Information.bin", "rb");
+                    if(binary_file==NULL){
+                        printf("\nNumber Not Registered, Register First!\n");
+                        fclose(binary_file);
+                        return;
+                    }
+                    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+                        if(strcmp(user_number, tempuser.phone) == 0){
+                            printf("User Number: %s\n", user_number);
+                            break;
+                        }
+                    }
+                    
+                    fclose(binary_file);
+                    
+                    printf("Dialed Number: %s\n", templog.dialed_Number);
+                    printf("Call Date: %s\n", templog.date);
+                    printf("Call Time: %s\n", templog.time);
+                    printf("Call Type: %s\n", templog.callType);
+                    printf("Call Duration: %s (%d seconds)\n", templog.duration,integer_duration);
+                    printf("Total Cost= %.2f BDT\n",cost);
+                    printf("\n====================\n");
+                    return;                    
+                }
+
+                memset(&templog, 0, sizeof(templog)); // Reset for next entry
+
+            }
+        }
+    }
+
+    //Airtel Operator
+    if(select==4){ 
+        //reading file & loading data from file
+        while(fgets(line, sizeof(line), text_file)){
+
+            //extracting dialed_Number from the line(---| Dialed Number: xxxxxxxxx)
+            if(strncmp(line, "---| Dialed Number:", 19) == 0){
+                sscanf(line, "---| Dialed Number: %s", templog.dialed_Number);
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Date: %s", templog.date);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Time: %s", templog.time);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Duration: %s",templog.duration);//extracting duration from the line(---| Duration: hh:mm:ss)
+                int integer_duration = convertToSeconds(templog.duration);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Type: %s", templog.callType);
+
+            
+                if (strcmp(dialed_number, templog.dialed_Number) == 0) {
+                    if(strcmp(templog.callType,"local")==0){
+                        float cost_per_second = 0.0065;
+                        cost = integer_duration * cost_per_second;
+                    }
+                    else{
+                        cost = integer_duration* 0.5;
+                    }
+
+                    // Display bill
+                    printf("\n======= BILL =======\n\n");
+                    USER tempuser;
+                    FILE* binary_file = fopen("User Information.bin", "rb");
+                    if(binary_file==NULL){
+                        printf("\nNumber Not Registered, Register First!\n");
+                        fclose(binary_file);
+                        return;
+                    }
+                    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+                        if(strcmp(user_number, tempuser.phone) == 0){
+                            printf("User Number: %s\n", user_number);
+                            break;
+                        }
+                    }
+                    
+                    fclose(binary_file);
+                    
+                    printf("Dialed Number: %s\n", templog.dialed_Number);
+                    printf("Call Date: %s\n", templog.date);
+                    printf("Call Time: %s\n", templog.time);
+                    printf("Call Type: %s\n", templog.callType);
+                    printf("Call Duration: %s (%d seconds)\n", templog.duration,integer_duration);
+                    printf("Total Cost= %.2f BDT\n",cost);
+                    printf("\n====================\n");
+                    return;                    
+                }
+
+                memset(&templog, 0, sizeof(templog)); // Reset for next entry
+
+            }
+        }
+    }
+
+    //Teletalk Operator
+    if(select==4){ 
+        //reading file & loading data from file
+        while(fgets(line, sizeof(line), text_file)){
+
+            //extracting dialed_Number from the line(---| Dialed Number: xxxxxxxxx)
+            if(strncmp(line, "---| Dialed Number:", 19) == 0){
+                sscanf(line, "---| Dialed Number: %s", templog.dialed_Number);
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Date: %s", templog.date);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Time: %s", templog.time);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Duration: %s",templog.duration);//extracting duration from the line(---| Duration: hh:mm:ss)
+                int integer_duration = convertToSeconds(templog.duration);
+
+                fgets(line, sizeof(line), text_file);
+                sscanf(line, "---| Type: %s", templog.callType);
+
+            
+                if (strcmp(dialed_number, templog.dialed_Number) == 0) {
+                    if(strcmp(templog.callType,"local")==0){
+                        float cost_per_second = 0.0075;
+                        cost = integer_duration * cost_per_second;
+                    }
+                    else{
+                        cost = integer_duration* 0.5;
+                    }
+
+                    // Display bill
+                    printf("\n======= BILL =======\n\n");
+                    USER tempuser;
+                    FILE* binary_file = fopen("User Information.bin", "rb");
+                    if(binary_file==NULL){
+                        printf("\nNumber Not Registered, Register First!\n");
+                        fclose(binary_file);
+                        return;
+                    }
+                    while(fread(&tempuser,sizeof(USER),1,binary_file)){
+                        if(strcmp(user_number, tempuser.phone) == 0){
+                            printf("User Number: %s\n", user_number);
+                            break;
+                        }
+                    }
+                    
+                    fclose(binary_file);
+                    
+                    printf("Dialed Number: %s\n", templog.dialed_Number);
+                    printf("Call Date: %s\n", templog.date);
+                    printf("Call Time: %s\n", templog.time);
+                    printf("Call Type: %s\n", templog.callType);
+                    printf("Call Duration: %s (%d seconds)\n", templog.duration,integer_duration);
+                    printf("Total Cost= %.2f BDT\n",cost);
+                    printf("\n====================\n");
+                    return;                    
+                }
+
+                memset(&templog, 0, sizeof(templog)); // Reset for next entry
+
+            }
+        }
+    }
+
+
+    fclose(text_file);
+
+}
