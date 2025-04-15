@@ -195,7 +195,7 @@ int loginUser() {
 
 //Main Function
 int main() {
-    int Choice,Sub_Choice_1,Sub_Choice_2,user_ID;
+    int Choice,Sub_Choice_1,Sub_Choice_2,Sub_Choice_3,user_ID;
 
     while (1) {
         //Navigation Menu
@@ -203,7 +203,7 @@ int main() {
         printf("1. Register\n");
         printf("2. Login\n");
         printf("3. Exit\n");
-        printf("Select from Navigation Menu: ");
+        printf("Select from Navigation Menu(1,2,3): ");
         scanf("%d", &Choice);
         getchar();
 
@@ -219,55 +219,99 @@ int main() {
                 if(user_ID!=-1){
                     while(logged_in){
                         //Dashboard Menu
-                        printf("\n| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect : ");
+                        printf("\n| --- Dashboard --- |\n1. Call Log Details\n2. Generate Bill\n3. Report\n4. Ledger\n5. Log Out\nSelect(1,2,3,4): ");
                         scanf("%d",&Sub_Choice_1);
                         getchar();
+
+                        int entered_call_log=1;
+                        int entered_operator_menu=1;
                         switch(Sub_Choice_1){
                             case 1:
-                                //Call Log Menu
-                                printf("\n| --- Call Logs --- |\n");
-                                printf("1. Dialed\n");
-                                printf("2. Received\n");
-                                printf("3. Missed\n");
-                                printf("4. Dashboard\n");
-                                printf("Select: ");
-                                scanf("%d",&Sub_Choice_2);
-                                getchar();
-                        
-                                switch(Sub_Choice_2){
-                                    case 1:
-                                      //   CallLogDetails(user_ID,Sub_Choice_2);
-                                      break;
-                                      case 2:
-                                         //
-                                         break;
-                                      case 3:
-                                         //
-                                         break;
-                                      case 4:
-                                         break;//return to Dashboard from Call Log Menu
-                                      default: 
-                                          printf("\n\nInvalid choice! Please try again.\n");
-                                      
+                                while(entered_call_log){
+                                    //Call Log Menu
+                                    printf("\n| --- Call Logs --- |\n");
+                                    printf("1. Dialed\n");
+                                    printf("2. Received\n");
+                                    printf("3. Missed\n");
+                                    printf("4. Dashboard\n");
+                                    printf("Select(1,2,3,4): ");
+                                    scanf("%d",&Sub_Choice_2);
+                                    getchar();
+                                    
+                                    switch(Sub_Choice_2){
+                                        case 1:
+                                                CallLogDetails(Sub_Choice_2);
+                                            break;
+                                        case 2:
+                                                CallLogDetails(Sub_Choice_2);
+                                                break;
+                                        case 3:
+                                                CallLogDetails(Sub_Choice_2); 
+                                                break;
+                                        case 4:
+                                        entered_call_log=0;//return to Dashboard from Call Log Menu
+                                        break;
+                                        default: 
+                                                printf("\n\nInvalid choice! Please try again.\n");
+                                            
+                                            }      
                                 }
                                 
-                                break;
+                            break;
+                            
                             case 2:
-                            //    GenerateBill();
-                               break;
+                                while(entered_operator_menu){
+                                    //Operator Menu
+                                    printf("\n| --- Select Your Number Operator --- |\n");
+                                    printf("1. Grameenphone\n");
+                                    printf("2. Banglalink\n");
+                                    printf("3. Robi\n");
+                                    printf("4. Airtel\n");
+                                    printf("5. Teletalk\n");
+                                    printf("6. Dashboard\n");
+                                    printf("Select(1,2,3,4,5,6): ");
+                                    scanf("%d",&Sub_Choice_3);
+                                    getchar();
+                                    
+                                    switch(Sub_Choice_3){
+                                        case 1:
+                                                GenerateBill(Sub_Choice_3);
+                                            break;
+                                        case 2:
+                                                GenerateBill(Sub_Choice_3);
+                                                break;
+                                        case 3:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 4:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 5:
+                                                GenerateBill(Sub_Choice_3); 
+                                                break;
+                                        case 6:
+                                                entered_operator_menu=0;
+                                                break;//return to Dashboard from Operator Menu
+                                        default: 
+                                                printf("\n\nInvalid choice! Please try again.\n");
+                                            
+                                            }      
+                                }
+                        
+                            break;
+                                break;
                             case 3:
-                            //    Report();
-                               break;   
+                                //    Report();
+                                break;   
                             case 4:
-                            //    Ledger();
-                               break;
+                                //    Ledger();
+                                break;
                             case 5:
-                               printf("\nLogging out...\n");
-                               logged_in=0;//return to Main Menu from Dashboard
-                               break;
-                               
+                                printf("\nLogging out...\n");
+                                logged_in=0;//return to Main Menu from Dashboard
+                                break;
                             default:
-                               printf("\n\nInvalid choice! Please try again.\n");
+                                printf("\n\nInvalid choice! Please try again.\n");
                         }
                     }    
                 }
