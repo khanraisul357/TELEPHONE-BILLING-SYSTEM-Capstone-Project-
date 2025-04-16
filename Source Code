@@ -145,7 +145,7 @@ void registerUser() {
 }   
 
 
-//UDF FOT LOG-IN/SIGN-IN FUNCTIONALITY
+//UDF FOR LOG-IN/SIGN-IN FUNCTIONALITY
 int loginUser() {
     char username[50],email[50],password[50];
     int found=0,username_exist=0,email_exist=0,password_exist=0;
