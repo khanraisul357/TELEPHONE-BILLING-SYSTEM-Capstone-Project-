@@ -421,7 +421,7 @@ void CallLogDetails(int select){
         fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
         calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
         
-        fprintf(text_file, "---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
+        fprintf(text_file, "---| Received Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
 
         printf("\n======= Received =======\n");
         printf("---| Received Number: %s\n", calls[callLOG_count].received_Number);
@@ -453,7 +453,7 @@ void CallLogDetails(int select){
         fgets(calls[callLOG_count].callType,sizeof(calls[callLOG_count].callType),stdin);
         calls[callLOG_count].callType[strcspn(calls[callLOG_count].callType, "\n")] = '\0';    
         
-        fprintf(text_file, "---| Dialed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
+        fprintf(text_file, "---| Missed Number: %s\n---| Date: %s\n---| Time: %s\n---| Duration: %s\n---| Type: %s\n---| call log count: %d\n\n\n",calls[callLOG_count].dialed_Number,calls[callLOG_count].date,calls[callLOG_count].time,calls[callLOG_count].duration,calls[callLOG_count].callType,callLOG_count);
 
 
         printf("\n======= Missed =======\n");
