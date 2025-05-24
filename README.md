@@ -3,7 +3,6 @@
 Telephone Billing System – Project Description
 
 The Telephone Billing System is a C-based software application designed to streamline and automate the billing process for telephone services. It ensures accurate tracking of calls, bill calculation, and payment management. The system incorporates the following key features:
-
 User Authentication – Allows users to register and log in securely.
 Call Log Management – Stores call details, including date, time, duration, and recipient.
 Automated Bill Generation – Calculates call costs based on predefined tariff rates.
